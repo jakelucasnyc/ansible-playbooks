@@ -1,3 +1,5 @@
 - hosts: ai
-  roles:
-  - ping
+  gather_facts: true
+  tasks:
+    - name: Pinging servers
+      ansible.builtin.ping:
