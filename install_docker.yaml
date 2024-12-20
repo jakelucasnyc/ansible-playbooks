@@ -1,4 +1,5 @@
 - hosts: all
+  become_method: sudo
   tasks:
     - name: Install aptitude
       become: true
