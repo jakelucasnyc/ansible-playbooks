@@ -2,12 +2,14 @@
   become: true
   tasks:
     - name: Install aptitude
+      become: true
       apt:
         name: aptitude
         state: latest
         update_cache: true
 
     - name: Install required system packages
+      become: true
       apt:
         pkg:
           - ca-certificates
@@ -20,22 +22,23 @@
       ansible.builtin.shell:
         cmd: install -m 0755 -d /etc/apt/keyrings
 
-    - name: Download Docker GPG Key
+    - name: Download docker GPG key
       become: true
       ansible.builtin.shell:
         cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 
-    - name: Change Docker GPG Key Permissions
+    - name: Change docker GPG key permissions
       become: true
       ansible.builtin.shell:
         cmd: chmod a+r /etc/apt/keyrings/docker.asc
 
-    - name: Add Docker to Apt Sources
+    - name: Add docker to apt sources
       become: true
       ansible.builtin.shell:
         cmd: echo \ "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Update Apt
+    - name: Update apt
+      become: true
       apt:
         pkg:
           - docker-ce
@@ -45,7 +48,22 @@
           - docker-compose-plugin
         update_cache: true
 
-    - name: Create Docker Hello World
+    - name: Ensure docker group exists
+      become: true
+      ansible.builtin.shell:
+        cmd: groupadd docker
+
+    - name: Add user to docker group
+      become: true
+      ansible.builtin.shell:
+        cmd: usermod -aG docker $USER
+
+    - name: Refresh group membership
+      become: true
+      ansible.builtin.shell:
+        cmd: newgrp docker
+
+    - name: Ensure user can create docker containers
       community.docker.docker_container:
         name: hello-world
         image: hello-world
