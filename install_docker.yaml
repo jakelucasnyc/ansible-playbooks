@@ -2,7 +2,7 @@
   become: true
   tasks:
     - name: Install aptitude
-      become: true
+      sudo: true
       apt:
         name: aptitude
         state: latest
